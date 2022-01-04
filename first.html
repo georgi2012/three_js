@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>The BG pyramid</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script>
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			
+			scene.background = new THREE.Color( 0x000000 );
+			
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			const geometryBox1 = new THREE.BoxGeometry(3,1,3);
+			const geometryBox2 = new THREE.BoxGeometry(2,1,2);
+			const geometryBox3 = new THREE.BoxGeometry(1,1,1);
+			
+			
+			const materialWhite = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+			const materialRed = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+			const materialGreen = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			const materialBrown=new THREE.MeshBasicMaterial( {color:0x836953} );
+			
+			const materialGrey1=new THREE.MeshBasicMaterial({color:0xf2eeed});
+			const materialGrey2=new THREE.MeshBasicMaterial({color:0xe6dcda});
+			const materialGrey3=new THREE.MeshBasicMaterial({color:0xfcfafa});
+			
+			const cube1 = new THREE.Mesh( geometryBox1, materialGrey1 );
+			scene.add( cube1 );
+			
+			const cube2 = new THREE.Mesh( geometryBox2, materialGrey2);
+			scene.add( cube2 );
+			cube2.position.y+=1;
+			
+			const cube3 = new THREE.Mesh( geometryBox3, materialGrey3 );
+			scene.add( cube3 );
+			cube3.position.y+=1.5;
+			
+			const geometryCyl = new THREE.CylinderGeometry( 0.05, 0.05, 3, 3 );
+			const cylinder=new THREE.Mesh(geometryCyl,materialBrown);
+			cylinder.position.y+=3;
+			scene.add(cylinder);
+			
+			const flagGeo=new THREE.BoxGeometry(2,0.4,0.1);
+			
+			const flagWhite=new THREE.Mesh(flagGeo,materialWhite);
+			flagWhite.position.set(1,4,0);
+			
+			const flagGreen=new THREE.Mesh(flagGeo,materialGreen);
+			flagGreen.position.set(1,3.6,0);
+			
+			const flagRed=new THREE.Mesh(flagGeo,materialRed);
+			flagRed.position.set(1,3.2,0);
+			
+			scene.add(flagWhite);
+			scene.add(flagRed);
+			scene.add(flagGreen);
+			
+			camera.position.set(1,2,5);
+			
+			
+			renderer.render( scene, camera );
+
+			
+		</script>
+	</body>
+</html>

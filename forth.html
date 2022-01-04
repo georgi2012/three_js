@@ -1,0 +1,127 @@
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="three.min.js"></script>
+    <script src="CSG.js"></script>
+    <script>
+        
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setAnimationLoop(drawFrame);
+        document.body.appendChild(renderer.domElement);
+
+        var scene = new THREE.Scene();
+        scene.background = new THREE.Color('lightgreen');
+
+        var aspect = window.innerWidth / window.innerHeight;
+        camera = new THREE.PerspectiveCamera(30, aspect);
+        camera.position.set(40, 20, 30);
+
+
+       var bench = new THREE.Group();
+        const blackMat=new THREE.MeshStandardMaterial( { color: 'black',metalness: 1});
+        const woodMat=new THREE.MeshBasicMaterial({color: 'rgb(150, 111, 51)'});
+        const cylGeo = new THREE.CylinderGeometry( 2, 2, 1 ,100);
+        const cubeGeo=new THREE.BoxGeometry(6,1,0.5);
+        
+        //oval handles and legs
+            var handle = new CSG();
+            //var handle = new THREE.Group();
+            var cilinder = new THREE.Mesh( cylGeo, blackMat );
+            cilinder.rotation.z=Math.PI/2;
+            cilinder.position.x=10;
+            handle.union([cilinder]);
+            cilinder=cilinder.clone();
+            cilinder.position.x=-10;
+            handle.union([cilinder]);
+            //legs
+                //left
+            var legFront=new THREE.Mesh(cubeGeo,blackMat);
+            legFront.position.y-=2;
+            legFront.rotation.z=Math.PI/2;
+            legFront.rotation.x-=Math.PI/10;
+            legFront.position.z=2.4;
+            legFront.position.x=-10;
+            handle.union([legFront]);
+
+            var legBack=legFront.clone();
+            legBack.rotation.z=Math.PI/2;
+            legBack.rotation.x=Math.PI/10;
+            legBack.position.z-=4.6;
+            handle.union([legBack]);
+                //right
+            legBack=legBack.clone();
+            legBack.position.x=10;
+            handle.union([legBack]);
+            legFront=legFront.clone();
+            legFront.position.x=10;
+            handle.union([legFront]);
+            //
+            //make hole
+            const cylSmallGeo=new THREE.CylinderGeometry( 1.7, 1.7, 22 ,100);
+            var hole = new THREE.Mesh( cylSmallGeo, blackMat );
+            hole.rotation.z=Math.PI/2;
+            handle.subtract([hole]);
+            //
+            bench.add(handle.toMesh());
+        //
+        //seat
+        var seat=new THREE.Group();
+            //metal handlers? idk how they are called
+             var handler=new THREE.Mesh(cubeGeo,blackMat);
+             handler.position.set(-9,-0.5,0.5);
+             handler.scale.set(0.9,1,1);
+             handler.rotation.set(Math.PI/2,0,Math.PI/2);
+             seat.add(handler);
+             handler=handler.clone();
+             handler.position.x=9;
+             seat.add(handler);
+             const boardBox=new THREE.BoxGeometry(18,0.5,0.8);
+             board= new THREE.Mesh(boardBox,woodMat);
+             //board.position.x+=10;
+             for(let i=0;i<5;i++)
+             {
+                board= board.clone();
+                board.position.z=i*1.1-1.8;
+                seat.add(board);
+             }
+            //boards
+            //
+        bench.add(seat);
+        //
+             //back
+             seat=seat.clone();
+             seat.position.y+=1.4;
+             seat.position.z-=3.6;
+             seat.rotation.x=-Math.PI/1.5;
+        //
+        bench.add(seat);
+        //;
+        scene.add(bench);
+        //
+
+         camera.lookAt(0,0,0);
+
+        function drawFrame() {
+            // въртим мистериозния обект
+            scene.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>

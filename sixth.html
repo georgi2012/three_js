@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script src="futuristicPillar.js"></script>
+		<script>
+			var renderer = new THREE.WebGLRenderer({antialias: true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setAnimationLoop( drawFrame );
+			document.body.appendChild( renderer.domElement );
+			
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+			var scene = new THREE.Scene();
+			scene.background = new THREE.Color( 'green' );
+			
+			var aspect = window.innerWidth/window.innerHeight;
+			var camera = new THREE.PerspectiveCamera( 30, aspect );
+			camera.position.set( 0, 80, 250 );
+			camera.lookAt( new THREE.Vector3( 0, 20, 0 ));
+
+			
+			// координати на началната точка на движението
+			var x1 = 30+60*Math.random();
+			var y1 = 10;
+			var z1 = 40;
+			
+			// координати на крайната точка на движението
+			var x2 = -30-60*Math.random();
+			//var z2 = 40-80*Math.random();
+
+			
+			// създаване на подвижната сфера
+			var ball = new THREE.Mesh(
+				new THREE.SphereGeometry( 4, 32, 32 ),
+				new THREE.MeshPhongMaterial( {color: 'goldenrod', shininess: 60, specular: 'white'} )
+			);
+			ball.castShadow = true;
+			scene.add( ball );
+
+
+			
+		
+			var material = new THREE.MeshPhongMaterial( {color: 'blue', shininess: 0, specular: 'white'} )
+			var torgeometry = new THREE.TorusGeometry( 10, 3, 16, 100 );
+			var torus1=new THREE.Mesh(torgeometry,material);
+			var torus2= new THREE.Mesh(torgeometry,material);
+			torus1.position.set(x1,y1,z1);
+			torus2.position.set(x2,y1,z1);
+			//torus1.rotation.x=Math.PI/2;
+			//torus2.rotation.x=Math.PI/2;
+			scene.add(torus1);
+			scene.add(torus2);
+			// светлина
+			var light = new THREE.PointLight();
+			light.position.set( (x1+x2)/2, y1+y1, (z1+z1)/2 );
+			light.castShadow = true;
+			scene.add( light );
+
+			scene.add( new THREE.AmbientLight( 'deeppink' ) );
+			
+			// имаме часовник за измерване на времето
+			var clock = new THREE.Clock();
+			
+			var clock = new THREE.Clock();
+			var radius = Math.abs(x1-x2)/2+2;
+			function drawFrame()
+			{
+				var t = clock.getElapsedTime();
+				
+
+				ball.position.x = (x1+x2)/2+radius*Math.cos(t);
+				ball.position.y = y1;
+				ball.position.z = z1+radius*Math.sin(t);
+
+				scene.rotation.y -= 0.001;
+				
+				renderer.render( scene, camera );
+			}
+		</script>
+	</body>
+</html>

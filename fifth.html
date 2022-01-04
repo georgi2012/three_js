@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script>
+			//Група 2: владетел - св. Тривелий Теоктист (хан Тервел); предмет - меч
+			
+			var renderer = new THREE.WebGLRenderer({antialias:true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setAnimationLoop( drawFrame );
+			document.body.appendChild( renderer.domElement );
+
+			var scene = new THREE.Scene();
+			scene.background = new THREE.Color( 'crimson' );
+		
+			var aspect = window.innerWidth/window.innerHeight;
+			var camera = new THREE.PerspectiveCamera( 30, aspect );
+			camera.position.set( 50, 10, 100 );
+			camera.lookAt( new THREE.Vector3() );
+			//
+
+			const goldenMat = new THREE.MeshPhongMaterial({ color: 0xFFD700, side: THREE.DoubleSide, shininess: 90}); //#FFA500
+			const orangeMat = new THREE.MeshPhongMaterial({ color: 0xFFA500, side: THREE.DoubleSide, shininess: 90});
+			const silverMat = new THREE.MeshPhongMaterial({ color: 0xD4D6D9, side: THREE.DoubleSide, shininess: 90});
+			//d4d6d9
+			//const goldenMat = new THREE.MeshPhysicalMaterial({color: 0xFFD700, metalness:0 ,roughness :1})
+			const sword=new THREE.Group();
+			scene.add(sword);
+			sword.position.y-=13;
+			//handle
+			const cylgeometry = new THREE.CylinderGeometry( 1, 1, 8, 32 );
+			let handle = new THREE.Mesh( cylgeometry, goldenMat );
+			sword.add( handle );
+			const torusgeometry = new THREE.TorusGeometry( 1.2, 0.5, 16, 10 );
+			//rings
+			for(let i=0;i<6;i++)
+			{
+				let handleTorus=new THREE.Mesh(torusgeometry,goldenMat);
+				handleTorus.position.set(0, -3+i,0);
+				sword.add(handleTorus)
+				handleTorus.rotation.x=Math.PI/2;
+			}
+			//handle end
+			const handleEndCyl = new THREE.CylinderGeometry( 1, 1.5, 2, 32 );
+			handle=new THREE.Mesh( handleEndCyl, goldenMat );
+			sword.add(handle);
+			handle.position.set(0,-5,0);
+			const handleEndConus = new THREE.CylinderGeometry( 1.5, 0, 1, 32 );
+			handle=new THREE.Mesh( handleEndConus, goldenMat );
+			sword.add(handle);
+			handle.position.set(0,-6.5,0);
+			//handle start
+			const boxGeo = new THREE.BoxGeometry( 8, 2, 2 );
+			handle=new THREE.Mesh(boxGeo,goldenMat);
+			sword.add(handle);
+			handle.position.set(0,3,0);
+			handle=new THREE.Mesh(boxGeo,orangeMat);
+			handle.scale.set(0.5,1,1.5);
+			sword.add(handle);
+			handle.position.set(0,3,0);
+			//blade
+			var blade = new THREE.BufferGeometry();
+			var group=new THREE.Group();
+
+			var v = [[ 0,40,0],  //end
+					 [-2,35,0],  
+					 [ 2,35,0],  
+					 [ 2, 3,0],  //handle
+					 [-2, 3,0],
+					 [ 0, 0,0]];//center
+			
+
+			var vertices = new Float32Array([
+			...v[0],...v[2],...v[3],
+			...v[0],...v[1],...v[4],
+			...v[4],...v[3],...v[0]
+			]);
+			blade.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+			blade.computeVertexNormals();
+			//
+			//group.add(blade);
+			group.add( new THREE.Mesh( blade,silverMat));
+			//sword.add( new THREE.Mesh( blade, new THREE.MeshBasicMaterial({color:'red'}) ));
+			//sword.add( new THREE.Points( blade, new THREE.PointsMaterial({color:'black', size:1}) ));
+			//
+
+			sword.add(group);
+			var light = new THREE.PointLight( 'white' );
+			light.position.set( 0, 10, 100 );
+			scene.add( light );
+			
+			function drawFrame()
+			{
+				sword.rotation.y += 0.008;
+				sword.rotation.x -= 0.006;
+				sword.rotation.z -= 0.006;
+				renderer.render( scene, camera );
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,100 @@
+﻿<html>
+	<head>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script>
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setAnimationLoop( drawFrame );
+			document.body.appendChild( renderer.domElement );
+
+			var scene = new THREE.Scene();
+			scene.background = new THREE.Color( 'black' );
+
+			var aspect = window.innerWidth/window.innerHeight;
+			var camera = new THREE.PerspectiveCamera( 30, aspect );
+			camera.position.set( 0, -20, 25 );
+			camera.lookAt( new THREE.Vector3() );
+
+			var letter = new THREE.Group();
+			scene.add( letter );
+
+			const geometry = new THREE.CylinderGeometry( 1,1,10  );
+			const materialRed = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+			const part1 = new THREE.Mesh( geometry, materialRed );
+			part1.rotation.z=15;
+			
+			letter.add( part1 );
+			
+			const part2 = new THREE.Mesh( geometry, materialRed );
+			part2.rotation.z=-15;
+			
+			letter.add(part2);//normal letter
+			letter.position.x=-10;
+			
+			//road
+			const geometryPlane = new THREE.PlaneGeometry( 1.5, 30 );
+			const materialGray = new THREE.MeshPhongMaterial( {color: 'gray'} );
+			const road = new THREE.Mesh( geometryPlane, materialGray );
+			scene.add( road );
+			//
+			//ball
+			var geometrySph = new THREE.SphereGeometry( 1 );
+			var materialBasic = new THREE.MeshBasicMaterial({color:'yellow'});
+			var ball = new THREE.Mesh( geometrySph, materialBasic );
+			ball.position.z+=1;
+			scene.add( ball );
+			
+			const ballLight = new THREE.PointLight({color:'yellow'},6);
+			ball.add(ballLight);
+			//
+			//glagolica
+			var letter2 = new THREE.Group();
+			
+			var boxGeo=new THREE.BoxGeometry( 1, 7 );
+			const longPart = new THREE.Mesh( boxGeo, materialRed );
+			longPart.position.set(10,3,0);
+			letter2.add(longPart);
+			boxGeo=new THREE.BoxGeometry( 1, 3 );
+			const smallPart=new THREE.Mesh( boxGeo, materialRed );
+			smallPart.position.set(9,-1.3,0);
+			smallPart.rotation.z=15;
+			letter2.add(smallPart);
+			
+			const torusGeo = new THREE.TorusGeometry( 1.5,0.5,10,10,Math.PI * 2/1.2 );
+			const torus = new THREE.Mesh( torusGeo, materialRed );
+			torus.position.set(11,-1,0);
+			torus.rotation.z=10;
+			letter2.add(torus);
+			
+			scene.add(letter2);
+			//
+			
+			//light just to look a bit better
+			var light = new THREE.PointLight({color:'yellow'},0.35);
+			light.position.set( 0, 0, 20 );
+			scene.add( light );
+			
+			
+			
+			var ballGoingUp=true;
+			
+			function drawFrame()
+			{
+				if(ball.position.y>=10)
+				{ballGoingUp=false;}
+				else if (ball.position.y <=-10)
+				{ballGoingUp=true;}
+				
+				if(ballGoingUp){ball.position.y+=0.1;}
+				else {ball.position.y-=0.1;}
+				renderer.render( scene, camera );
+			}
+		</script>
+	</body>
+</html>

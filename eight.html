@@ -1,0 +1,221 @@
+<html>
+	<head>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script src="CSG.js"></script>
+		<!-- <script src="OrbitControls.js"></script> -->
+		<script>
+
+			function makeBench(scale=1){
+						var bench = new THREE.Group();
+				const blackMat=new THREE.MeshStandardMaterial( { color: 'black',metalness: 1});
+				const woodMat=new THREE.MeshBasicMaterial({color: 'rgb(150, 111, 51)'});
+				const cylGeo = new THREE.CylinderGeometry( 2, 2, 1 ,100);
+				const cubeGeo=new THREE.BoxGeometry(6,1,0.5);
+				
+				//oval handles and legs
+					var handle = new CSG();
+					//var handle = new THREE.Group();
+					var cilinder = new THREE.Mesh( cylGeo, blackMat );
+					cilinder.rotation.z=Math.PI/2;
+					cilinder.position.x=10;
+					handle.union([cilinder]);
+					cilinder=cilinder.clone();
+					cilinder.position.x=-10;
+					handle.union([cilinder]);
+					//legs
+						//left
+					var legFront=new THREE.Mesh(cubeGeo,blackMat);
+					legFront.position.y-=2;
+					legFront.rotation.z=Math.PI/2;
+					legFront.rotation.x-=Math.PI/10;
+					legFront.position.z=2.4;
+					legFront.position.x=-10;
+					handle.union([legFront]);
+
+					var legBack=legFront.clone();
+					legBack.rotation.z=Math.PI/2;
+					legBack.rotation.x=Math.PI/10;
+					legBack.position.z-=4.6;
+					handle.union([legBack]);
+						//right
+					legBack=legBack.clone();
+					legBack.position.x=10;
+					handle.union([legBack]);
+					legFront=legFront.clone();
+					legFront.position.x=10;
+					handle.union([legFront]);
+					//
+					//make hole
+					const cylSmallGeo=new THREE.CylinderGeometry( 1.7, 1.7, 22 ,100);
+					var hole = new THREE.Mesh( cylSmallGeo, blackMat );
+					hole.rotation.z=Math.PI/2;
+					handle.subtract([hole]);
+					//
+					bench.add(handle.toMesh());
+				//
+				//seat
+				var seat=new THREE.Group();
+					//metal handlers? idk how they are called
+					var handler=new THREE.Mesh(cubeGeo,blackMat);
+					handler.position.set(-9,-0.5,0.5);
+					handler.scale.set(0.9,1,1);
+					handler.rotation.set(Math.PI/2,0,Math.PI/2);
+					seat.add(handler);
+					handler=handler.clone();
+					handler.position.x=9;
+					seat.add(handler);
+					const boardBox=new THREE.BoxGeometry(18,0.5,0.8);
+					board= new THREE.Mesh(boardBox,woodMat);
+					//board.position.x+=10;
+					for(let i=0;i<5;i++)
+					{
+						board= board.clone();
+						board.position.z=i*1.1-1.8;
+						seat.add(board);
+					}
+					//boards
+					//
+				bench.add(seat);
+				//
+					//back
+					seat=seat.clone();
+					seat.position.y+=1.4;
+					seat.position.z-=3.6;
+					seat.rotation.x=-Math.PI/1.5;
+				//
+				bench.add(seat);
+				bench.scale.set(scale,scale,scale);
+				return bench;
+			}
+
+			var renderer = new THREE.WebGLRenderer({antialias:true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setAnimationLoop( drawFrame );
+			document.body.appendChild( renderer.domElement );
+
+			//
+			var scene = new THREE.Scene();
+			scene.background = new THREE.Color( 'blue' );
+
+			var aspect = window.innerWidth/window.innerHeight;
+			var camera = new THREE.PerspectiveCamera( 30, aspect );
+			camera.position.set( 10, -100, 100 );
+			camera.lookAt( new THREE.Vector3( 0, 0, 10 ) );
+
+			const boxGeo=new THREE.BoxGeometry(25,50,1);
+			const grassMat=new THREE.MeshPhongMaterial({color:'green'});
+			const terrain=new THREE.Group();
+			//Борисова градина - западна част
+			scene.add(terrain);
+			var obj=new THREE.Mesh(boxGeo,grassMat);
+			terrain.add(obj);
+
+			obj=obj.clone();
+			obj.scale.set(1,0.6,1);
+			obj.position.set(-20,-12.5,0);
+			var csg=new CSG();
+			csg.union([obj]);
+			var removable=new THREE.Mesh(boxGeo,grassMat);
+			removable.scale.set(1,0.5,1);
+			removable.rotation.z= 135*Math.PI/180;
+			removable.position.set(-20,8,0);
+			csg.subtract([removable]);
+			terrain.add(csg.toMesh());
+			//pilone
+			var cylinder = new THREE.Mesh( new THREE.CylinderGeometry( 1, 1, 6, 32 ), new THREE.MeshBasicMaterial( {color: 0xFFD700}) );
+			cylinder.rotation.x=Math.PI/2;
+			cylinder.add(new THREE.PointLight( 'yellow'));
+			cylinder.position.set(0,14,3);
+			scene.add(cylinder);
+			cylinder=cylinder.clone();
+			cylinder.position.set(0,-5,3);
+			scene.add(cylinder);
+			cylinder=cylinder.clone();
+			cylinder.position.set(-12,-18,3);
+			scene.add(cylinder);
+			cylinder=cylinder.clone();
+			cylinder.position.set(-27,-20,3);
+			scene.add(cylinder);
+			//some benches
+			let bench=makeBench(0.3);
+			scene.add(bench);
+			bench.position.set(-27, -11, 2);
+			bench.rotation.x=Math.PI/2;
+
+			bench=bench.clone();
+			scene.add(bench);
+			bench.position.set(4, 23, 2);
+
+			bench=bench.clone();
+			bench.rotation.y=-Math.PI/2;
+			scene.add(bench);
+			bench.position.set(10, 8, 2);
+
+			bench=bench.clone();
+			bench.rotation.y=Math.PI;
+			scene.add(bench);
+			bench.position.set(6, -20, 2);
+			//
+			var light = new THREE.PointLight( 'white' );
+			light.position.set(0,0,20);
+			scene.add(light);
+			//
+			const road = new THREE.CatmullRomCurve3([
+			new THREE.Vector3( -30, -20, 1 ),
+			new THREE.Vector3( -27, -17, 1 ),
+			new THREE.Vector3( -12, -20, 1 ),     
+			new THREE.Vector3( 0, -10, 1 ),
+			new THREE.Vector3( -4, -5, 1 ),
+			new THREE.Vector3( 0, 0, 1 ),
+			new THREE.Vector3( 3, 14, 1 ),
+			new THREE.Vector3( 0, 17, 1 ),
+			new THREE.Vector3( -3, 14, 1 ),
+			new THREE.Vector3( 0, 0, 1 ),
+			new THREE.Vector3( 4, -5, 1 ),
+			new THREE.Vector3( -0, -10, 1 ),
+			new THREE.Vector3( -12, -15, 1 ),
+			new THREE.Vector3( -23, -20, 1 ),     
+			new THREE.Vector3( -27, -23, 1 ),
+			new THREE.Vector3( -30, -20, 1 )
+			] )
+			//
+			let scale = 0;
+			//
+			function zoom(event) {
+			event.preventDefault();
+
+			scale += event.deltaY * -0.0001;
+				//console.log(scale)
+				//console.log(event.deltaY);
+			scale = Math.min(Math.max(0, scale), 3);
+
+			}
+			document.addEventListener('wheel', zoom);
+
+			scene.rotation.x=-Math.PI/2;
+			var pos=road.getPoint(0);
+			//camera.lookAt(pos.x,3,-pos.y);
+			var t=0;
+			function drawFrame()
+			{
+				t += 0.0003;
+				pos =  road.getPoint(t);
+
+				camera.position.set(pos.x, 3, -pos.y);
+				
+				var next=road.getPoint(t+ 0.0005);
+				camera.lookAt(next.x,3,-next.y+scale);
+				
+				renderer.render( scene, camera );
+
+				//controls.update();
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,173 @@
+<html>
+	<head>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script>
+			
+	
+			var renderer = new THREE.WebGLRenderer({antialias:true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setAnimationLoop( drawFrame );
+			document.body.appendChild( renderer.domElement );
+
+			var scene = new THREE.Scene();
+			scene.background = new THREE.Color( 'yellow' );
+
+			var aspect = window.innerWidth/window.innerHeight;
+			var camera = new THREE.PerspectiveCamera( 30, aspect );
+			camera.position.set( 0, 0, 35 );
+
+
+			var vertices = [];
+
+			function fd( d )
+			{
+				x += d*Math.cos(dir);
+				y += d*Math.sin(dir);
+				 vertices.push( new THREE.Vector3( x, y, 0 ) );
+				lt(90)
+				x += d*Math.cos(dir);
+				y += d*Math.sin(dir);
+				vertices.push( new THREE.Vector3( x, y, 0 ) );
+				lt(90)
+				x += d*Math.cos(dir);
+				y += d*Math.sin(dir);
+				vertices.push( new THREE.Vector3( x, y, 0 ) );
+				lt(90)
+				x += d*Math.cos(dir);
+				y += d*Math.sin(dir);
+				vertices.push( new THREE.Vector3( x, y, 0 ) );
+				//lt(90)
+			}
+			
+
+			function lt( a )
+			{
+				dir += a*Math.PI/180;
+			}
+			
+
+			function rt( a )
+			{
+				lt( -a );
+			}
+			
+			function moveLeft(len){
+				x-=len;
+			}
+			function moveUp(len){
+				y+=len;
+			}
+			function moveDown(len){
+				y-=len;
+			}
+			function moveRight(len){
+				x+=len
+			}
+			// рисуване на отсечка на Кох с дадена дължина
+			// и брой оставащи нива на раздробяване
+			function kochSegment( len, level )
+			{
+				if( level )
+				{
+					//len /= 3.0;
+					
+					level--;
+					moveDown(len);
+					kochSegment( len, level );
+					moveUp(len)
+					moveUp(len)
+					kochSegment( len, level );
+					moveDown(len)
+					moveRight(len)
+					kochSegment( len, level );
+					moveLeft(len)
+					moveLeft(len)
+					kochSegment( len, level );
+					moveRight(len)
+				}
+				else
+				{	// дъно на рекурсията, не раздробяваме
+					// повече отсечката, просто я рисуваме
+					fd( len );
+					
+				}
+			}
+			
+		
+			var len = 1; // първоначална дължина на отсечката
+			var x = -len/2;
+			var y = len*Math.sqrt(3)/6;
+			var dir = 0;
+            fd( 0 );
+
+          
+
+			for( var i=0; i<8; i++ ) //centre
+			{
+				kochSegment( len,3 );
+				lt( 45)
+				if(i%2==0)
+					drawNext(i/2)
+			}
+			
+			//fd(3)
+			function drawNext(i){
+				let left=0, up=0;
+				
+				if(i==0){
+					left=6;
+					up=6;
+					//drawNext(i+1)
+				}
+				else if(i==1){
+					left=-6;
+					up=6;
+					//drawNext(i+1)
+				}
+				else if(i==2){
+					left=6;
+					up=-6;
+					//drawNext(i+1)
+				}
+				else {
+					left=-6;
+					up=-6;
+					//drawNext(i+1)
+				}
+
+				moveLeft(left)
+				moveUp(up)
+				for( let i=0; i<4; i++ )
+				{
+					kochSegment( len/1.5, 2);
+					lt( 90 );
+				}
+				moveLeft(-left);
+				moveUp(-up)
+
+				
+			}
+			
+			
+			var line = new THREE.Line( 
+				new THREE.BufferGeometry().setFromPoints( vertices ),
+				new THREE.LineBasicMaterial( {color: 'red'} )
+			);
+			scene.add( line );
+			
+		
+			function drawFrame()
+			{
+				//scene.rotation.z += 0.005;
+				
+				renderer.render( scene, camera );
+			}
+		</script>
+	</body>
+</html>
